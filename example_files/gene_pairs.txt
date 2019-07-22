@@ -1,0 +1,15 @@
+Gene Symbol	Annotation
+AAMP:FLNA	GP
+AAMP:RPL10	GP
+ARIH1:LEPROTL1	GP
+BRAT1:WRN	GP
+CBFB:ADGRF1	GP
+WRN:TTC37	GP
+BCL2L1:MCL1	GP
+HDAC1:HDAC2	GP
+EEF2:	Essential
+EIF3A:	Essential
+PSMD2:	Essential
+RAN:	Essential
+RPS9:	Essential
+SNRPD1:	Essential
