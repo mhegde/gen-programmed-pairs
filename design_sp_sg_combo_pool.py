@@ -18,12 +18,18 @@ def get_parser():
     parser.add_argument('--sa-input-file',
         type=str,
         help='File with S.aureus guide designs')
-    parser.add_argument('--sp-ctrls-file',
+    parser.add_argument('--sp-nosite-file',
         type=str,
-        help='File with S.pyogenes control guides')
-    parser.add_argument('--sa-ctrls-file',
+        help='File with S.pyogenes NO_SITE control guides')
+    parser.add_argument('--sp-onesite-file',
         type=str,
-        help='File with S.aureus control guides')
+        help='File with S.pyogenes ONE_NON-GENE_SITE control guides')
+    parser.add_argument('--sa-nosite-file',
+        type=str,
+        help='File with S.aureus NO_SITE control guides')
+    parser.add_argument('--sa-onesite-file',
+        type=str,
+        help='File with S.aureus ONE_NON-GENE_SITE control guides')
     parser.add_argument('--gene-pairs',
         type=str,
         help='File with required gene pairs')
@@ -68,10 +74,8 @@ def write_output(comb_list, o_check, w):
     return w
 
 
-def get_sg_pairs(sp, sa, sp_ctrl, sa_ctrl, gp, o_check, outputfile):
+def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_check, outputfile):
     pair_check = {}
-    sp_orig = sp_ctrl
-    sa_orig = sa_ctrl
     with open(outputfile,'w') as o:
         w = csv.writer(o,delimiter='\t')
         w.writerow(['sgRNA Combination','Gene pair'])
@@ -83,96 +87,88 @@ def get_sg_pairs(sp, sa, sp_ctrl, sa_ctrl, gp, o_check, outputfile):
                 g2_sa = sa[sa['Target Gene Symbol']==g2]
                 ori1_combo = get_comb(g1_sp, g2_sa)
                 write_output(ori1_combo, o_check, w)
-                if 'non-targeting:'+g2 not in pair_check.keys():
-                    if len(sp_ctrl) <= len(g2_sa):
-                        sp_ctrl = sp_orig
-                    w, sp_ctrl = get_control_combos(g2_sa, sp_ctrl, 'sa', o_check, w)
-                    pair_check['non-targeting:'+g2] = 1
-                if g1 + ':non-targeting' not in pair_check.keys():
-                    if len(sa_ctrl) == 0:
-                        sa_ctrl = sa_orig
-                    w, sa_ctrl = get_control_combos(g1_sp, sa_ctrl, 'sp', o_check, w)
-                    pair_check[g1 + ':non-targeting'] = 1
+                if 'control:'+g2 not in pair_check.keys():
+                    g2_sa_nosite_combo = get_comb(sp_nosite.sample(5), g2_sa)
+                    write_output(g2_sa_nosite_combo, o_check, w)
+                    g2_sa_onesite_combo = get_comb(sp_onesite.sample(5), g2_sa)
+                    write_output(g2_sa_onesite_combo, o_check, w)
+                    pair_check['control:'+g2] = 1
+                if g1 + ':control' not in pair_check.keys():
+                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(5))
+                    write_output(g1_sp_nosite_combo, o_check, w)
+                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(5))
+                    write_output(g1_sp_onesite_combo, o_check, w)
+                    pair_check[g1 + ':control'] = 1
                 g2_sp = sp[sp['Target Gene Symbol']==g2]
                 g1_sa = sa[sa['Target Gene Symbol']==g1]
                 ori2_combo = get_comb(g2_sp, g1_sa)
                 write_output(ori2_combo, o_check, w)
-                if 'non-targeting:'+g1 not in pair_check.keys():
-                    if len(sp_ctrl) <= len(g1_sa):
-                        sp_ctrl = sp_orig
-                    w, sp_ctrl = get_control_combos(g1_sa, sp_ctrl, 'sa', o_check, w)
-                    pair_check['non-targeting:'+g1] = 1
-                if g2+':non-targeting' not in pair_check.keys():
-                    if len(sa_ctrl) <= len(g2_sp):
-                        sa_ctrl = sa_orig
-                    w, sa_ctrl = get_control_combos(g2_sp, sa_ctrl, 'sp', o_check, w)
-                    pair_check[g2 + ':non-targeting'] = 1
+                if 'control:'+g1 not in pair_check.keys():
+                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(5), g1_sa)
+                    write_output(g1_sa_nosite_combo, o_check, w)
+                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(5), g1_sa)
+                    write_output(g1_sa_onesite_combo, o_check, w)
+                    pair_check['control:'+g1] = 1
+                if g2+':control' not in pair_check.keys():
+                    g2_sp_nosite_combo = get_comb(g2_sp, sa_nosite.sample(5))
+                    write_output(g2_sp_nosite_combo, o_check, w)
+                    g2_sp_onesite_combo = get_comb(g2_sp, sa_onesite.sample(5))
+                    write_output(g2_sp_onesite_combo, o_check, w)
+                    pair_check[g2 + ':control'] = 1
             else:
                 g1, g2 = g['Gene Symbol'].split(':')
                 g1_sp = sp[sp['Target Gene Symbol'] == g1]
-                if g1+':non-targeting' not in pair_check.keys():
-                    if len(sa_ctrl) <= len(g1_sp):
-                        sa_ctrl = sa_orig
-                    w, sa_ctrl = get_control_combos(g1_sp, sa_ctrl, 'sp', o_check, w)
-                    pair_check[g1 + ':non-targeting'] = 1
+                if g1+':control' not in pair_check.keys():
+                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(5))
+                    write_output(g1_sp_nosite_combo, o_check, w)
+                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(5))
+                    write_output(g1_sp_onesite_combo, o_check, w)
+                    pair_check[g1 + ':control'] = 1
                 g1_sa = sa[sa['Target Gene Symbol'] == g1]
-                if 'non-targeting:'+g1 not in pair_check.keys():
-                    if len(sp_ctrl) <= len(g1_sa):
-                        sa_ctrl = sp_ctrl
-                    w, sp_ctrl = get_control_combos(g1_sa, sp_ctrl, 'sa', o_check, w)
-                    pair_check['non-targeting:'+g1] = 1
-        if len(sp_ctrl) <= 100:
-            sp_ctrl = sp_orig
-        if len(sa_ctrl) <= 100:
-            sa_ctrl = sa_orig
-        get_control_by_control(sp_ctrl, sa_ctrl, o_check, w)
+                if 'control:'+g1 not in pair_check.keys():
+                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(5), g1_sa)
+                    write_output(g1_sa_nosite_combo, o_check, w)
+                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(5), g1_sa)
+                    write_output(g1_sa_onesite_combo, o_check, w)
+                    pair_check['control:'+g1] = 1
+        get_control_by_control(sp_nosite.sample(100), sa_nosite.sample(100), o_check, w)
     return w
 
 
-def get_control_combos(df1, ctrls, sg_type, o_check, w):
-    df1.index = list(range(0,len(df1)))
-    ran_ctrls = random.sample(ctrls, len(df1))
-    new_ctrls = [x for x in ctrls if x not in ran_ctrls]
-    req_comb = []
-    if sg_type == 'sp':
-        for i,r in df1.iterrows():
-            req_comb.append((r['sgRNA Sequence']+':'+r['Target Gene Symbol'], ran_ctrls[i]+':non-targeting'))
-    else:
-        for i, r in df1.iterrows():
-            req_comb.append((ran_ctrls[i] + ':non-targeting', r['sgRNA Sequence'] + ':' + r['Target Gene Symbol']))
-    w = write_output(req_comb, o_check, w)
-    return w, new_ctrls
-
-
 def get_control_by_control(ctrls1, ctrls2, o_check, w):
-    ran_ctrls_1 = random.sample(ctrls1, 100)
-    ran_ctrls_2 = random.sample(ctrls2, 100)
-    for i, r in enumerate(ran_ctrls_1):
-        control_2 = ran_ctrls_2[i]
-        s = SequenceMatcher(None, r, control_2)  # Sequence overlap check
-        s_rev = SequenceMatcher(None, revcom(r), control_2)  # Sequence overlap check of reverse complement
+    list1, list2 = [], []
+    for i, r in ctrls1.iterrows():
+        list1.append(r['sgRNA Sequence'] + ':' + r['Target Gene Symbol'])
+    for i, r in ctrls2.iterrows():
+        list2.append(r['sgRNA Sequence'] + ':' + r['Target Gene Symbol'])
+    for (c1,c2) in zip(list1, list2):
+        sg1, g1 = c1.split(':')
+        sg2, g2 = c2.split(':')
+        s = SequenceMatcher(None, sg1, sg2)  # Sequence overlap check
+        s_rev = SequenceMatcher(None, revcom(sg1), sg2)  # Sequence overlap check of reverse complement
         if (s.find_longest_match(0, 20, 0, 21).size < o_check) and (
                 s_rev.find_longest_match(0, 20, 0, 21).size < o_check):
-            w.writerow([r+':'+control_2, 'non-targeting:non-targeting'])
+            w.writerow([sg1+':'+sg2, g1+':'+g2])
     return
 
 
 def read_args(args):
     sp_input = pd.read_csv(args.sp_input_file)
     sa_input = pd.read_csv(args.sa_input_file)
-    sp_ctrls = pd.read_csv(args.sp_ctrls_file, sep='\t')
-    sp_ctrls = list(sp_ctrls['sgRNA Seq'])
-    sa_ctrls = pd.read_csv(args.sa_ctrls_file, sep='\t',header=1)
-    sa_ctrls = list(sa_ctrls['sgRNA Seq'])
+    sp_nosite = pd.read_csv(args.sp_nosite_file, sep='\t')
+    sp_onesite = pd.read_csv(args.sp_onesite_file, sep='\t')
+    sa_nosite = pd.read_csv(args.sa_nosite_file, sep='\t')
+    sa_onesite = pd.read_csv(args.sa_onesite_file, sep='\t')
     gene_pairs = pd.read_table(args.gene_pairs)
     overlap_check = args.overlap_check
     outputfile = args.outputfile
-    return sp_input, sa_input, sp_ctrls, sa_ctrls, gene_pairs, overlap_check, outputfile
+    return sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile
 
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
-    sp_input, sa_input, sp_ctrls, sa_ctrls, gene_pairs, overlap_check, outputfile = read_args(args)
-    val = get_sg_pairs(sp_input, sa_input, sp_ctrls, sa_ctrls, gene_pairs, overlap_check, outputfile)
+    sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile = read_args(args)
+    val = get_sg_pairs(sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile)
+
 
 
