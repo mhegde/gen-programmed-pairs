@@ -131,7 +131,8 @@ def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_che
                     g1_sa_onesite_combo = get_comb(sp_onesite.sample(5), g1_sa)
                     write_output(g1_sa_onesite_combo, o_check, w)
                     pair_check['control:'+g1] = 1
-        get_control_by_control(sp_nosite.sample(100), sa_nosite.sample(100), o_check, w)
+        get_control_by_control(sp_nosite.sample(50), sa_nosite.sample(50), o_check, w)
+        get_control_by_control(sp_onesite.sample(50), sa_onesite.sample(50), o_check, w)
     return w
 
 
