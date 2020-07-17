@@ -37,6 +37,14 @@ def get_parser():
         type=int,
         default=12, 
         help='Length of overlap to be avoided')
+    parser.add_argument('--num-ctrls',
+        type=int,
+        default=5,
+        help='Number of control guides to be paired with targeting guides')
+    parser.add_argument('--ctrl-ctrl',
+        type=int,
+        default=50,
+        help='Number of control by control guide combinations'
     parser.add_argument('--outputfile',
         type=str,
         help='Outputfile')
@@ -74,7 +82,7 @@ def write_output(comb_list, o_check, w):
     return w
 
 
-def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_check, outputfile):
+def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_check, num_ctrls, ctrl_ctrl, outputfile):
     pair_check = {}
     with open(outputfile,'w') as o:
         w = csv.writer(o,delimiter='\t')
@@ -88,15 +96,15 @@ def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_che
                 ori1_combo = get_comb(g1_sp, g2_sa)
                 write_output(ori1_combo, o_check, w)
                 if 'control:'+g2 not in pair_check.keys():
-                    g2_sa_nosite_combo = get_comb(sp_nosite.sample(5), g2_sa)
+                    g2_sa_nosite_combo = get_comb(sp_nosite.sample(num_ctrls), g2_sa)
                     write_output(g2_sa_nosite_combo, o_check, w)
-                    g2_sa_onesite_combo = get_comb(sp_onesite.sample(5), g2_sa)
+                    g2_sa_onesite_combo = get_comb(sp_onesite.sample(num_ctrls), g2_sa)
                     write_output(g2_sa_onesite_combo, o_check, w)
                     pair_check['control:'+g2] = 1
                 if g1 + ':control' not in pair_check.keys():
-                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(5))
+                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(num_ctrls))
                     write_output(g1_sp_nosite_combo, o_check, w)
-                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(5))
+                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(num_ctrls))
                     write_output(g1_sp_onesite_combo, o_check, w)
                     pair_check[g1 + ':control'] = 1
                 g2_sp = sp[sp['Target Gene Symbol']==g2]
@@ -104,35 +112,39 @@ def get_sg_pairs(sp, sa, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gp, o_che
                 ori2_combo = get_comb(g2_sp, g1_sa)
                 write_output(ori2_combo, o_check, w)
                 if 'control:'+g1 not in pair_check.keys():
-                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(5), g1_sa)
+                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(num_ctrls), g1_sa)
                     write_output(g1_sa_nosite_combo, o_check, w)
-                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(5), g1_sa)
+                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(num_ctrls), g1_sa)
                     write_output(g1_sa_onesite_combo, o_check, w)
                     pair_check['control:'+g1] = 1
                 if g2+':control' not in pair_check.keys():
-                    g2_sp_nosite_combo = get_comb(g2_sp, sa_nosite.sample(5))
+                    g2_sp_nosite_combo = get_comb(g2_sp, sa_nosite.sample(num_ctrls))
                     write_output(g2_sp_nosite_combo, o_check, w)
-                    g2_sp_onesite_combo = get_comb(g2_sp, sa_onesite.sample(5))
+                    g2_sp_onesite_combo = get_comb(g2_sp, sa_onesite.sample(num_ctrls))
                     write_output(g2_sp_onesite_combo, o_check, w)
                     pair_check[g2 + ':control'] = 1
             else:
                 g1, g2 = g['Gene Symbol'].split(':')
                 g1_sp = sp[sp['Target Gene Symbol'] == g1]
                 if g1+':control' not in pair_check.keys():
-                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(5))
+                    g1_sp_nosite_combo = get_comb(g1_sp, sa_nosite.sample(num_ctrls))
                     write_output(g1_sp_nosite_combo, o_check, w)
-                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(5))
+                    g1_sp_onesite_combo = get_comb(g1_sp, sa_onesite.sample(num_ctrls))
                     write_output(g1_sp_onesite_combo, o_check, w)
                     pair_check[g1 + ':control'] = 1
                 g1_sa = sa[sa['Target Gene Symbol'] == g1]
                 if 'control:'+g1 not in pair_check.keys():
-                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(5), g1_sa)
+                    g1_sa_nosite_combo = get_comb(sp_nosite.sample(num_ctrls), g1_sa)
                     write_output(g1_sa_nosite_combo, o_check, w)
-                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(5), g1_sa)
+                    g1_sa_onesite_combo = get_comb(sp_onesite.sample(num_ctrls), g1_sa)
                     write_output(g1_sa_onesite_combo, o_check, w)
                     pair_check['control:'+g1] = 1
-        get_control_by_control(sp_nosite.sample(50), sa_nosite.sample(50), o_check, w)
-        get_control_by_control(sp_onesite.sample(50), sa_onesite.sample(50), o_check, w)
+        #get_control_by_control(sp_nosite.sample(50), sa_nosite.sample(50), o_check, w)
+        ctrl_comb = get_comb(sp_nosite.sample(ctrl_ctrl), sa_nosite.sample(ctrl_ctrl))
+        write_output(ctrl_comb, o_check, w)
+        ctrl_comb = get_comb(sp_onesite.sample(ctrl_ctrl), sa_onesite.sample(ctrl_ctrl))
+        write_output(ctrl_comb, o_check, w)
+        #get_control_by_control(sp_onesite.sample(50), sa_onesite.sample(50), o_check, w)
     return w
 
 
@@ -162,14 +174,16 @@ def read_args(args):
     sa_onesite = pd.read_csv(args.sa_onesite_file, sep='\t')
     gene_pairs = pd.read_table(args.gene_pairs)
     overlap_check = args.overlap_check
+    num_ctrls = args.num_ctrls
+    ctrl_ctrl = args.ctrl_ctrl
     outputfile = args.outputfile
-    return sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile
+    return sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, num_ctrls, ctrl_ctrl, outputfile
 
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
-    sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile = read_args(args)
-    val = get_sg_pairs(sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, outputfile)
+    sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, num_ctrls, ctrl_ctrl, outputfile = read_args(args)
+    val = get_sg_pairs(sp_input, sa_input, sp_nosite, sp_onesite, sa_nosite, sa_onesite, gene_pairs, overlap_check, num_ctrls, ctrl_ctrl, outputfile)
 
 
 

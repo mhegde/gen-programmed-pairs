@@ -10,4 +10,6 @@ This script helps make sgRNA combinations for programmed pairs of genes.
 <li>S.aureus one-non-gene-site guides: .txt file with list of S.aureus one_non-gene_site controls. Column name should be 'sgRNA Sequence' and 'Target Gene Symbol'</li>
 <li>Gene pairs: .txt file with gene pairs. Refer to example file provided for format</li>
 <li>Overlap check: Number of nucleotides overlap between sgRNA pairs to be avoided. Default:12</li>
+<li>Number of control guides with targeting guides: Number of control guides to be paired with targeting guides. Same number of no-site and intergenic sites. Default:5</li>
+<li>Number of control guides with control guides: Number of control guide combinations. Same number of no-site and intergenic sites. Default:50</li>
 <li>Outputfile: Name of outputfile</li>
