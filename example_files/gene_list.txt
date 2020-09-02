@@ -1,0 +1,26 @@
+Gene Symbol
+Aadac
+B4galt1
+Cers2
+Dcps
+Denr
+Elovl1
+Fut8
+Golph3
+Hsd17b12
+Mgat2
+Mgat3
+Mgat4b
+Mpi
+Osbpl9
+Pik3r4
+Rabif
+Slc10a7
+Slc25a53
+Slc30a1
+Slc35c1
+Ugp2
+Clasrp
+Gabrb2
+Vps35l
+Ccdc93
